@@ -83,17 +83,17 @@
     function show(i) {
       cur = (i + slides.length) % slides.length;
       slides.forEach(function (s, k) { s.classList.add('kb'); s.classList.toggle('is-on', k === cur); });
-      dots.forEach(function (b, k) { b.setAttribute('aria-current', String(k === cur)); });
+      dots.forEach(function (b, k) { b.setAttribute('aria-current', String(k === cur)); }); var bar = dots[cur] && dots[cur].querySelector('.hd-bar i'); if (bar) { bar.style.animation = 'none'; bar.offsetHeight; bar.style.animation = ''; }
       if (cap) cap.textContent = slides[cur].getAttribute('data-cap');
     }
-    function play() { clearInterval(timer); if (!paused) timer = setInterval(function () { show(cur + 1); }, 6500); }
+    function play() { clearInterval(timer); if (!paused) { hero.classList.add('is-running'); timer = setInterval(function () { show(cur + 1); }, 6500); } }
     dots.forEach(function (b) { b.addEventListener('click', function () { show(+b.getAttribute('data-i')); play(); }); });
     if (pause) {
-      if (reduce) { pause.setAttribute('aria-pressed', 'true'); pause.textContent = 'Play slideshow'; }
-      pause.addEventListener('click', function () { paused = !paused; pause.setAttribute('aria-pressed', String(paused)); pause.textContent = paused ? 'Play slideshow' : 'Pause slideshow'; play(); });
+      if (reduce) { pause.setAttribute('aria-pressed', 'true'); pause.setAttribute('aria-label', 'Play slideshow'); hero.classList.add('is-paused'); }
+      pause.addEventListener('click', function () { paused = !paused; pause.setAttribute('aria-pressed', String(paused)); pause.setAttribute('aria-label', paused ? 'Play slideshow' : 'Pause slideshow'); hero.classList.toggle('is-paused', paused); if (!paused) show(cur); play(); });
     }
-    hero.addEventListener('focusin', function () { clearInterval(timer); });
-    hero.addEventListener('focusout', play);
+    hero.addEventListener('focusin', function () { clearInterval(timer); hero.classList.add('is-paused'); });
+    hero.addEventListener('focusout', function () { if (!paused) { hero.classList.remove('is-paused'); show(cur); } play(); });
     d.addEventListener('visibilitychange', function () { if (d.hidden) clearInterval(timer); else play(); });
     /* load the other slides after the page settles, so the first photo stays fast */
     window.addEventListener('load', function () { setTimeout(function () { slides.forEach(function (s) { s.querySelectorAll('[data-srcset],[data-src]').forEach(function (el) { if (el.dataset.srcset) el.srcset = el.dataset.srcset; if (el.dataset.src) el.src = el.dataset.src; }); }); play(); }, 2500); });
@@ -162,6 +162,39 @@
     });
   });
 
+  /* Projects showcase tabs + thumbnails */
+  d.querySelectorAll('[data-showcase]').forEach(function (sc) {
+    var tabs = sc.querySelectorAll('[role=tab]');
+    function sel(t, focus) { tabs.forEach(function (x) { var on = x === t; x.setAttribute('aria-selected', String(on)); x.tabIndex = on ? 0 : -1; var pnl = d.getElementById(x.getAttribute('aria-controls')); if (pnl) pnl.hidden = !on; }); if (focus) t.focus(); }
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () { sel(t); });
+      t.addEventListener('keydown', function (e) { var k = e.key, n = k === 'ArrowRight' ? i + 1 : k === 'ArrowLeft' ? i - 1 : k === 'Home' ? 0 : k === 'End' ? tabs.length - 1 : null; if (n === null) return; e.preventDefault(); sel(tabs[(n + tabs.length) % tabs.length], true); });
+    });
+    sc.querySelectorAll('.sc-panel').forEach(function (pnl) {
+      var main = pnl.querySelector('.sc-main img'), src = pnl.querySelector('.sc-main source'), cap = pnl.querySelector('.sc-cap span');
+      pnl.querySelectorAll('.sc-thumb').forEach(function (b) {
+        b.addEventListener('click', function () {
+          pnl.querySelectorAll('.sc-thumb').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+          if (src) src.remove(); src = null;
+          main.removeAttribute('srcset'); main.src = b.getAttribute('data-src'); main.alt = b.getAttribute('data-alt'); if (cap) cap.textContent = b.getAttribute('data-alt');
+        });
+      });
+    });
+    sc.querySelectorAll('[data-goto]').forEach(function (b) {
+      b.addEventListener('click', function () { var f = d.querySelector('.filter[data-filter="' + b.getAttribute('data-goto') + '"]'); if (f) f.click(); var g = d.getElementById('gallery'); if (g) g.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); });
+    });
+  });
+
+  /* Service-area county filter */
+  var afs = d.querySelectorAll('[data-afilter]');
+  afs.forEach(function (f) {
+    f.addEventListener('click', function () {
+      var c = f.getAttribute('data-afilter');
+      afs.forEach(function (x) { x.setAttribute('aria-pressed', String(x === f)); });
+      d.querySelectorAll('[data-county]').forEach(function (it) { var show = c === 'all' || it.getAttribute('data-county') === c; it.hidden = !show; if (show) { it.style.animation = 'none'; it.offsetHeight; it.style.animation = ''; } });
+    });
+  });
+
   /* Lightbox with prev/next, keyboard, swipe and thumbnails */
   var lb = d.getElementById('lightbox');
   if (lb && typeof lb.showModal === 'function') {
@@ -224,9 +257,6 @@
         ['f-desc', 'e-desc', v('f-desc').length < 5],
         ['f-email', 'e-email', v('f-email') !== '' && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v('f-email'))]
       ];
-      var ph = d.getElementById('f-photos'), badPh = false;
-      if (ph && ph.files) { var tot = 0; if (ph.files.length > 3) badPh = true; for (var i = 0; i < ph.files.length; i++) tot += ph.files[i].size; if (tot > 4000000) badPh = true; }
-      checks.push(['f-photos', 'e-photos', badPh]);
       var first = null;
       checks.forEach(function (c) { var el = d.getElementById(c[0]); if (!el) return; setErr(el, c[1], c[2]); if (c[2] && !first) first = el; });
       if (first) { if (first.closest('details')) first.closest('details').open = true; first.focus(); }
@@ -240,30 +270,50 @@
         status.textContent = 'Please fix the highlighted fields and try again.';
         return;
       }
-      if (mode === 'review') {
-        e.preventDefault();
-        status.hidden = false; status.classList.add('is-review');
-        status.textContent = 'Review copy: submissions are turned off, so nothing was sent. Your entries passed validation.';
-        return;
-      }
-      /* Live: /api/estimate (Vercel function) validates again, emails the lead, and only redirects to /thank-you/
-         after the email provider confirms delivery. On failure it returns to /contact/?sent=error.
-         The flag below lets the thank-you page count one lead; it carries no personal data. */
-      try { sessionStorage.setItem('bx_lead', '1'); } catch (x) {}
-      var btn = form.querySelector('[type="submit"]'); if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+      e.preventDefault();
+      /* Honeypot: bots fill the hidden field; quietly stop. */
+      var hp = d.getElementById('f-website'); if (hp && hp.value) return;
+      /* Delivery (same setup as our other client sites): FormSubmit AJAX to the owner's inbox, agency copied.
+         Success is shown ONLY when FormSubmit answers success:"true". Timeout or error shows a prefilled email + phone. */
+      var to = form.getAttribute('data-to'), cc = form.getAttribute('data-cc') || '';
+      var f = function (id) { var el = d.getElementById(id); return el ? (el.value || '').trim() : ''; };
+      var data = { name: f('f-name'), phone: f('f-phone'), project_location: f('f-loc'), service: f('f-svc'), description: f('f-desc'), email: f('f-email'), timeline: f('f-time') };
+      var labels = { name: 'Name', phone: 'Phone', project_location: 'Project location', service: 'Service needed', description: 'Project description', email: 'Email', timeline: 'Timeline' };
+      var lines = Object.keys(data).filter(function (k) { return data[k]; }).map(function (k) { return labels[k] + ': ' + data[k]; });
+      var subj = 'New estimate request: ' + data.service + ' in ' + data.project_location;
+      var payload = {}; Object.keys(data).forEach(function (k) { if (data[k]) payload[labels[k]] = data[k]; });
+      payload['Page'] = location.pathname; payload._subject = subj; payload._template = 'table'; payload._captcha = 'false';
+      if (cc) payload._cc = cc; if (data.email) payload._replyto = data.email;
+      var btn = form.querySelector('[type="submit"]'), lbl = btn ? btn.textContent : '', fin = false, fb = form.querySelector('.f-fallback');
+      if (fb) fb.hidden = true;
+      if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = 'Sending…'; }
       status.hidden = false; status.classList.add('is-sending'); status.textContent = 'Sending your request…';
+      var ac = window.AbortController ? new AbortController() : null;
+      var tm = setTimeout(function () { if (ac) ac.abort(); finish(false); }, 10000);
+      function finish(ok) {
+        if (fin) return; fin = true; clearTimeout(tm);
+        if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = lbl; }
+        if (ok) {
+          try { sessionStorage.setItem('bx_lead', '1'); } catch (x) {}
+          status.className = 'f-status is-ok'; status.textContent = 'Sent. Taking you to the confirmation page…';
+          var home = d.querySelector('a.brand'); location.href = new URL('thank-you/', home ? home.href : location.origin + '/').href;
+          return;
+        }
+        status.className = 'f-status is-error'; status.hidden = true;
+        if (fb) {
+          var m = fb.querySelector('[data-mailto]');
+          if (m) m.href = 'mailto:' + to + '?cc=' + encodeURIComponent(cc) + '&subject=' + encodeURIComponent(subj) + '&body=' + encodeURIComponent(lines.join('\n') + '\n\nSent from ' + location.href);
+          fb.hidden = false; fb.setAttribute('tabindex', '-1'); fb.focus();
+        }
+        track('form_error', { form_id: 'estimate', form_delivery: 'fallback' });
+      }
+      fetch(form.getAttribute('action'), { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(payload), signal: ac ? ac.signal : undefined })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return r.ok && String(j.success) === 'true'; }); })
+        .then(finish).catch(function () { finish(false); });
     });
     window.addEventListener('pageshow', function (ev) {
       if (ev.persisted) { var btn = form.querySelector('[type="submit"]'); if (btn) { btn.disabled = false; btn.textContent = 'Request my free estimate'; } status.hidden = true; }
     });
-  }
-
-  /* Delivery failure: the server sent the visitor back here; show an honest error and clear the lead flag */
-  if (form && /[?&]sent=error/.test(location.search)) {
-    try { sessionStorage.removeItem('bx_lead'); } catch (x) {}
-    var st = form.querySelector('.f-status');
-    if (st) { st.hidden = false; st.className = 'f-status is-error'; st.innerHTML = 'Sorry, your request did not go through. Please call or text <a href="tel:+13604856579">(360) 485-6579</a>, or try the form again.'; }
-    track('form_error', { form_id: 'estimate' });
   }
 
   /* Lead conversion: only on the thank-you page, once per successful submission */
