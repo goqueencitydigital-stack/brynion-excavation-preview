@@ -844,3 +844,7 @@ h1,h2{letter-spacing:-.005em}
 .f-fallback .cta-row{margin:0;gap:var(--s3)}
 .f-status.is-ok{background:#E8F5EC;color:#14532D;border:1px solid #A7D7B5}
 .f-photo-note{margin:0 0 var(--s3)}
+
+/* single static hero (slider removed) */
+@media (min-width:901px){.hero-in{padding-bottom:calc(64px + var(--s7))}}
+@media (max-width:900px){.hero-in{padding-bottom:calc(40px + var(--s7))}}
