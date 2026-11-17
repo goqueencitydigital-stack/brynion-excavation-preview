@@ -151,13 +151,75 @@
     });
   });
 
+  /* Mobile quick-contact bar: on pages with the home hero, appear only after the hero buttons scroll away. */
+  var mbar = d.querySelector('.mbar'), heroEl = d.querySelector('.hero');
+  if (mbar) {
+    if (!heroEl) mbar.classList.add('is-on');
+    else { var mbT = function () { mbar.classList.toggle('is-on', window.scrollY > heroEl.offsetHeight * 0.6); }; mbT(); window.addEventListener('scroll', mbT, { passive: true }); }
+  }
+
+  /* Review cards: show "Read full review" only when the text is longer than the shared 5-line height. */
+  function fitQuotes() {
+    d.querySelectorAll('.quote').forEach(function (q) {
+      var p = q.querySelector('blockquote p'), b = q.querySelector('.q-more'); if (!p || !b) return;
+      if (q.classList.contains('is-open')) return;
+      b.hidden = !(p.scrollHeight > p.clientHeight + 2);
+    });
+  }
+  d.querySelectorAll('.q-more').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var q = b.closest('.quote'), open = !q.classList.contains('is-open');
+      q.classList.toggle('is-open', open); b.setAttribute('aria-expanded', String(open)); b.textContent = open ? 'Show less' : 'Read full review';
+    });
+  });
+  fitQuotes(); if (d.fonts && d.fonts.ready) d.fonts.ready.then(fitQuotes);
+  var fqT; window.addEventListener('resize', function () { clearTimeout(fqT); fqT = setTimeout(fitQuotes, 150); });
+
+  /* Gallery packer: assigns explicit grid spots so every row is filled (no gaps), for any filter and column count. */
+  var gal = d.querySelector('.gallery');
+  function packGallery() {
+    if (!gal) return;
+    var all = gal.querySelectorAll('.g-item'), items = [];
+    all.forEach(function (it) { it.style.gridColumn = ''; it.style.gridRow = ''; if (!it.hidden) items.push(it); });
+    var C = getComputedStyle(gal).gridTemplateColumns.split(' ').filter(Boolean).length || 1;
+    function put(it, c, r, cs, rs) { it.style.gridColumn = c + ' / span ' + cs; it.style.gridRow = r + ' / span ' + rs; }
+    var i = 0, n = items.length, row = 1, blk = 0;
+    while (i < n) {
+      var rem = n - i;
+      if (C >= 3 && blk % 3 === 0 && rem >= 2 * C - 2) {
+        /* 2-row block: one tall photo on alternating sides, one wide photo, singles fill the rest */
+        var left = (blk / 3) % 2 === 0, tc = left ? 1 : C, s0 = left ? 2 : 1;
+        put(items[i++], tc, row, 1, 2);
+        put(items[i++], s0, row, 2, 1);
+        for (var c = s0 + 2; c < s0 + C - 1; c++) put(items[i++], c, row, 1, 1);
+        for (c = s0; c < s0 + C - 1; c++) put(items[i++], c, row + 1, 1, 1);
+        row += 2;
+      } else if (C >= 2 && blk % 3 === 1 && rem >= C - 1 && rem !== C) {
+        /* row with one wide photo */
+        var wpos = C === 2 ? 1 : ((blk % 2) ? C - 1 : 1);
+        for (c = 1; c <= C; c++) { if (c === wpos) { put(items[i++], c, row, 2, 1); c++; } else put(items[i++], c, row, 1, 1); }
+        row += 1;
+      } else if (rem >= C) {
+        for (c = 1; c <= C; c++) put(items[i++], c, row, 1, 1);
+        row += 1;
+      } else {
+        /* last partial row: stretch the remaining photos to fill the full width */
+        var base = Math.floor(C / rem), extra = C % rem, col = 1;
+        for (var k = 0; k < rem; k++) { var w = base + (k < extra ? 1 : 0); put(items[i++], col, row, w, 1); col += w; }
+        row += 1;
+      }
+      blk++;
+    }
+  }
+  if (gal) { packGallery(); var pgT; window.addEventListener('resize', function () { clearTimeout(pgT); pgT = setTimeout(packGallery, 120); }); }
+
   /* Gallery filter */
   var filters = d.querySelectorAll('.filter'), gcount = d.querySelector('.g-count');
   filters.forEach(function (f) {
     f.addEventListener('click', function () {
       var cat = f.getAttribute('data-filter'), n = 0;
       filters.forEach(function (x) { x.setAttribute('aria-pressed', String(x === f)); });
-      d.querySelectorAll('.g-item').forEach(function (it) { var show = cat === 'all' || it.getAttribute('data-cat') === cat; it.hidden = !show; if (show) { n++; it.style.animation = 'none'; it.offsetHeight; it.style.animation = ''; } });
+      d.querySelectorAll('.g-item').forEach(function (it) { var show = cat === 'all' || it.getAttribute('data-cat') === cat; it.hidden = !show; if (show) { n++; it.style.animation = 'none'; it.offsetHeight; it.style.animation = ''; } }); packGallery();
       if (gcount) gcount.textContent = cat === 'all' ? 'Showing all ' + n + ' photos' : 'Showing ' + n + ' ' + f.firstChild.textContent.trim().toLowerCase() + ' photos';
     });
   });
