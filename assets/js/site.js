@@ -99,19 +99,20 @@
     window.addEventListener('load', function () { setTimeout(function () { slides.forEach(function (s) { s.querySelectorAll('[data-srcset],[data-src]').forEach(function (el) { if (el.dataset.srcset) el.srcset = el.dataset.srcset; if (el.dataset.src) el.src = el.dataset.src; }); }); play(); }, 2500); });
   }
 
-  /* Project carousel: centre-focused, swipe or arrows */
+  /* Project carousel: left-aligned, swipe or arrows */
   d.querySelectorAll('[data-carousel]').forEach(function (car) {
     var track = car.querySelector('.car-track'), items = car.querySelectorAll('.car-slide'), num = car.querySelector('.car-i'), bar = car.querySelector('.car-bar i'), idx = 0, raf = 0;
     function centre() {
-      var mid = track.scrollLeft + track.clientWidth / 2, best = 0, bd = 1e9;
-      items.forEach(function (it, k) { var c = it.offsetLeft + it.offsetWidth / 2, dd = Math.abs(c - mid); if (dd < bd) { bd = dd; best = k; } });
+      var pl = parseFloat(getComputedStyle(track).paddingLeft) || 0, best = 0, bd = 1e9;
+      if (track.scrollLeft + track.clientWidth >= track.scrollWidth - 4 && track.scrollLeft > 4) { var vis = track.scrollLeft + track.clientWidth - pl; items.forEach(function (it, k) { if (it.offsetLeft + it.offsetWidth / 2 < vis) best = k; }); bd = 0; }
+      else items.forEach(function (it, k) { var dd = Math.abs(it.offsetLeft - pl - track.scrollLeft); if (dd < bd) { bd = dd; best = k; } });
       if (best !== idx || !items[best].classList.contains('is-center')) {
         idx = best; items.forEach(function (it, k) { it.classList.toggle('is-center', k === idx); });
         if (num) num.textContent = String(idx + 1).padStart(2, '0');
         if (bar) bar.style.width = ((idx + 1) / items.length * 100) + '%';
       }
     }
-    function go(k) { k = (k + items.length) % items.length; var it = items[k]; track.scrollTo({ left: it.offsetLeft - (track.clientWidth - it.offsetWidth) / 2, behavior: reduce ? 'auto' : 'smooth' }); }
+    function go(k) { k = (k + items.length) % items.length; var it = items[k]; var pl = parseFloat(getComputedStyle(track).paddingLeft) || 0; track.scrollTo({ left: it.offsetLeft - pl, behavior: reduce ? 'auto' : 'smooth' }); }
     track.addEventListener('scroll', function () { cancelAnimationFrame(raf); raf = requestAnimationFrame(centre); }, { passive: true });
     car.querySelector('.car-prev').addEventListener('click', function () { go(idx - 1); });
     car.querySelector('.car-next').addEventListener('click', function () { go(idx + 1); });
