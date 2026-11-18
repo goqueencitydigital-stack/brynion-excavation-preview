@@ -815,7 +815,7 @@ h1,h2{letter-spacing:-.005em}
 .ci-list li{display:flex;gap:.85rem;align-items:flex-start}
 .ci-list b{display:block;font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:#9FC0D0;font-weight:600;margin-bottom:.1rem}
 .ci-list span,.ci-list a{display:block;color:#fff;font-size:.95rem;overflow-wrap:anywhere}
-.ci-list a{text-decoration:underline;text-decoration-color:rgba(232,162,58,.7);text-underline-offset:3px}
+.ci-list a{text-decoration:underline;text-decoration-color:rgba(91,192,232,.7);text-underline-offset:3px}
 .ci-list a:hover{color:var(--gold)}
 .ci-list span+a{font-size:.85rem;color:#C9D9E1;margin-top:.15rem}
 .ci-ic{flex:none;width:40px;height:44px;display:grid;place-items:center;background:rgba(232,162,58,.14);color:var(--gold);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
@@ -1109,3 +1109,40 @@ h2{line-height:1.08}
   .two-col,.ph-grid,.contact-grid,.post-grid,.about-grid{gap:2.5rem}
   .prose h2{margin-top:var(--s7)}
 }
+
+/* ================= palette v7: match brynionex.com (steel blue #0286B2, dark teal #072630, white) ================= */
+:root{--brand-blue:#0286B2;--gold:#027FA9;--gold-dk:#026A8C;--gold-lt:#5BC0E8;--abyss:#072630;--deep:#0B3340;--blue:#0286B2;--blue-lt:#5BC0E8}
+/* white text on blue fills */
+.btn-primary,.btn-primary:hover,.btn,.skip,.hex-ic,.hero-pause:hover,.hero-pause:hover span,.diamond-badge,.car-btn,.t-nav button.arrow,.faq summary::after,.ftr-social a:hover,.ftr-base,.ftr-base a,.site-footer .ftr-base a,.to-top,.mbar-est,.post-cat,.band-dark .post-cat,.band-dark a.post-cat,.pager a:hover,.lb-prev,.lb-next,.town-tag,.ci-ic,.ft-top,.mega-feature .btn{color:#fff}
+.btn-ghost,.btn-light,.btn-dark,.btn-outline-dark:hover{color:#fff}
+.btn-outline-dark{color:var(--abyss)}
+.btn-light:hover{color:#fff}
+.diamond-badge *,.hex-ic svg,.car-btn svg,.to-top svg,.ci-ic svg{color:#fff}
+/* blue-on-dark text uses the lighter tint for contrast */
+.eyebrow.light,.band-dark .text-link,.band-dark a:not(.btn),.hero h1 .hl,.final-cta h2 .hl,.contact-band>.wrap>h2 .hl,.hero-dot[aria-current=true],.proof .ic,.car-count b,.area-panel h3,.area-panel li a:hover,.area-panel li a.on,.area-panel li a .ic,.cc-list small,.cc-list a:hover,.ftr-h,.ftr-nav a:hover,.ftr-contact .ic,.ftr-contact a:hover,.lb-cap b,.ts-n,.g-cap b,.ci-kicker,.ci-phone .ic,.ci-hours .ic,.ci-list a:hover,.why .reasons a,.t-band .fb-note a,.t-band .sec-head p.fb-note a,.aeo-glance dt,.facts .ic,.car-cap .ic,.g-cat .ic,.fb-note .ic,.mega-feature .mega-h,.pq-ic,.big-phone .ic,.stat-n,.why .stat b{color:var(--gold-lt)}
+.band-dark .eyebrow,.about-band .eyebrow,.why .eyebrow,.t-band .eyebrow,.final-cta .eyebrow,.contact-band .eyebrow,.travel .eyebrow,.site-footer .eyebrow{color:var(--gold-lt)}
+@media (max-width:1180px){.nav-list a[aria-current=page],.mega-h{color:var(--gold-lt)}}
+.hero h1 .hl,.final-cta h2 .hl,.contact-band>.wrap>h2 .hl{text-shadow:none}
+.q-stars{color:#E8A23A}
+.ci-ic{background:var(--gold)}
+/* top bar like the live site: solid steel blue */
+.topbar{background:var(--gold);color:#fff}
+.topbar a,.topbar span{color:#fff}
+.topbar .ic{color:#fff}
+/* process band: solid steel blue */
+.band-stone:has(.steps){background:var(--brand-blue)}
+.band-stone:has(.steps) .eyebrow,.band-stone:has(.steps) h2{color:#fff}
+.band-stone:has(.steps) .eyebrow::before,.band-stone:has(.steps) .eyebrow::after{background:#fff}
+.step-n{color:var(--brand-blue);text-shadow:3px 3px 0 var(--abyss)}
+/* stripe borders on testimonials band */
+.t-band::before,.t-band::after{background:repeating-linear-gradient(-45deg,var(--brand-blue) 0 14px,transparent 14px 28px)}
+.hdr-phone small{color:var(--gold-dk)}
+.req{color:#B3261E}
+.prose li::marker{color:var(--gold)}
+.ci-ic{box-shadow:none}
+@media (max-width:1180px){
+  .nav-list .nav-mobile-cta a.btn-primary{color:#fff}
+  .nav-toggle .bars,.nav-toggle .bars::before,.nav-toggle .bars::after{background:#fff}
+  .nav-toggle[aria-expanded=true] .bars{background:transparent}
+}
+.btn-primary{color:#fff}
