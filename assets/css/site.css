@@ -1061,3 +1061,51 @@ p{color:inherit}
 .aeo-glance a{color:#fff;text-decoration:underline;text-decoration-color:var(--gold);text-underline-offset:3px}
 @media (max-width:900px){.aeo-grid{grid-template-columns:1fr}}
 @media (max-width:520px){.aeo-glance dl>div{grid-template-columns:1fr;gap:.15rem}}
+
+/* ================= spacing v6: more breathing room sitewide ================= */
+:root{--s5:1.75rem;--s6:2.5rem;--s7:3.75rem;--s8:6rem;--s9:8rem}
+body{line-height:1.75}
+p{margin:0 0 1.25rem}
+h1,h2,h3,h4{margin-bottom:1.25rem}
+h2{line-height:1.08}
+/* sections */
+.section{padding:clamp(4.5rem,8vw,7.5rem) 0}
+.aeo-sec{padding:clamp(3.5rem,6vw,5.5rem) 0}
+.sec-head{margin-bottom:clamp(2.75rem,5vw,4rem)}
+.sec-head .eyebrow,.eyebrow{margin-bottom:1rem}
+.band-stone>.wrap>h2:first-child{margin-bottom:var(--s7)}
+/* grids and cards */
+.svc-grid{gap:clamp(2rem,3.5vw,3rem) clamp(1.75rem,3vw,2.5rem)}
+.post-cards,.quotes{gap:clamp(1.75rem,3vw,2.5rem)}
+.chip-grid{gap:clamp(1.25rem,2.5vw,1.75rem)}
+.steps{gap:clamp(1.5rem,2.5vw,2.25rem);margin-top:var(--s7)}
+.reasons{gap:clamp(2rem,3vw,2.75rem) clamp(2rem,4vw,3.5rem)}
+.photo-row{gap:clamp(1rem,2vw,1.5rem)}
+.two-col,.ph-grid,.contact-grid,.post-grid{gap:clamp(2.5rem,6vw,5.5rem)}
+.about-grid{gap:clamp(2.5rem,7vw,7rem)}
+.aeo-grid{gap:clamp(2rem,4vw,3.5rem)}
+.card-body{padding-inline:clamp(1.5rem,2.5vw,2rem);padding-bottom:clamp(1.5rem,2.5vw,2rem)}
+.card-body p{margin-bottom:1.25rem}
+.quote{padding:clamp(1.75rem,3vw,2.25rem)}
+.aeo-answer,.aeo-glance{padding:clamp(1.75rem,3.5vw,2.75rem)}
+.aeo-glance dl>div{padding:.8rem 0}
+.facts{gap:var(--s4) var(--s6);margin:var(--s6) 0}
+.ticks li{padding-block:.7rem}
+.cta-row{gap:var(--s4) var(--s5);margin-top:var(--s5)}
+/* text blocks */
+.prose{line-height:1.8}
+.prose p,.prose li{margin-bottom:1.25rem}
+.prose h2{margin-top:var(--s8);margin-bottom:1.25rem}
+.prose h3{margin-top:var(--s6);margin-bottom:1rem}
+.prose ul,.prose ol{margin:0 0 1.75rem;padding-left:1.4rem}
+.prose figure,.prose img{margin-block:var(--s6)}
+.faq summary{padding-block:1.35rem}
+.faq details>div,.faq details>p{padding-bottom:1.5rem}
+.form-card .field,.form-card label{margin-bottom:.35rem}
+@media (max-width:760px){
+  .section{padding:clamp(3.5rem,12vw,4.5rem) 0}
+  .sec-head{margin-bottom:2.25rem}
+  .svc-grid,.post-cards,.quotes{gap:1.75rem}
+  .two-col,.ph-grid,.contact-grid,.post-grid,.about-grid{gap:2.5rem}
+  .prose h2{margin-top:var(--s7)}
+}
