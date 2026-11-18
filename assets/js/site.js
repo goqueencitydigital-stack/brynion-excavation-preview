@@ -388,4 +388,13 @@
       }
     } catch (x) {}
   }
+
+  /* Footer: collapsible link groups on mobile, open on desktop */
+  (function () {
+    var cols = d.querySelectorAll('.ft-col'); if (!cols.length) return;
+    var mq = window.matchMedia('(max-width:860px)');
+    function set() { cols.forEach(function (c) { if (mq.matches) c.removeAttribute('open'); else c.setAttribute('open', ''); }); }
+    cols.forEach(function (c) { c.querySelector('summary').addEventListener('click', function (e) { if (!mq.matches) e.preventDefault(); }); });
+    set(); if (mq.addEventListener) mq.addEventListener('change', set);
+  })();
 })();
