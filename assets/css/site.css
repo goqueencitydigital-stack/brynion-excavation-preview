@@ -1187,3 +1187,14 @@ h2{line-height:1.08}
 @media (max-width:480px){.cty-grid.one ul{columns:2}}
 .svc-geo .cty-h{margin-bottom:var(--s2)}.svc-geo .cty-h+p{margin-top:0}.loc-places li::first-letter{text-transform:uppercase}
 .svc-geo h2.cty-h{margin-bottom:.6rem!important}
+
+/* hover contrast fixes v10: never white-on-white or blue-on-dark */
+.btn-light:hover,.btn-light:focus-visible,.nav-list .nav-mobile-cta a.btn-light:hover{color:var(--abyss)!important}
+.btn-light:hover .ic,.btn-light:hover svg,.btn-light:focus-visible svg{color:var(--brand-blue)!important}
+.btn-light:hover::after,.btn-light:focus-visible::after,.band-dark .btn-light:hover::after,.hero .btn-light:hover::after{background:#fff!important}
+.ft-strong:hover,.ft-strong:focus-visible{color:var(--gold-lt)!important}
+.btn-primary:hover::before,.btn-primary:focus-visible::before{background:#016C90!important}
+.btn-primary:hover,.btn-primary:focus-visible{color:#fff!important}
+.svc-card:hover .card-link,.svc-card:focus-visible .card-link,.svc-card:hover .card-link .ic{color:var(--gold-lt)!important}
+.filter[aria-pressed=true] .n{color:var(--gold-lt)!important}
+.filter:hover:not([aria-pressed=true]){color:var(--abyss)}
