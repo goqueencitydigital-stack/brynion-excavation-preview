@@ -1146,3 +1146,17 @@ h2{line-height:1.08}
   .nav-toggle[aria-expanded=true] .bars{background:transparent}
 }
 .btn-primary{color:#fff}
+
+/* carousel controls v8: arrows grouped under the photos with the counter; readable hover */
+.car-ctrl{display:flex;align-items:center;justify-content:center;gap:var(--s5);margin-top:var(--s5)}
+.car-ctrl .car-btn,.car-ctrl .car-prev,.car-ctrl .car-next{position:static;transform:none;left:auto;right:auto;width:54px;height:54px;background:var(--brand-blue);color:#fff;transition:background .2s,transform .2s}
+.car-ctrl .car-count{margin:0;min-width:5.5em}
+.car-btn:hover,.car-btn:focus-visible{background:#fff!important;color:var(--brand-blue)!important}
+.car-btn:hover svg,.car-btn:focus-visible svg{color:var(--brand-blue)!important}
+.car-btn:disabled{opacity:.35;cursor:default;background:var(--brand-blue)!important;color:#fff!important}
+.car-btn:disabled svg{color:#fff!important}
+.t-nav button.arrow:hover,.t-nav button.arrow:focus-visible{background:#fff!important;color:var(--brand-blue)!important}
+.t-nav button.arrow:hover svg,.t-nav button.arrow:focus-visible svg{color:var(--brand-blue)!important}
+@media (max-width:700px){.car-ctrl .car-btn{width:48px;height:48px}.car-ctrl{gap:var(--s4)}}
+.lb-prev:hover,.lb-next:hover,.lb-prev:focus-visible,.lb-next:focus-visible,.to-top:hover,.to-top:focus-visible{background:#fff!important;color:var(--brand-blue)!important}
+.lb-prev:hover svg,.lb-next:hover svg,.to-top:hover svg,.lb-prev:focus-visible svg,.lb-next:focus-visible svg,.to-top:focus-visible svg{color:var(--brand-blue)!important}
