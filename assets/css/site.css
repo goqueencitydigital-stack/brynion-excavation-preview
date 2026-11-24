@@ -1245,3 +1245,45 @@ h2{line-height:1.08}
 .loc-map .area-panel .mi{margin-left:auto;font:600 .78rem var(--font-body);letter-spacing:0;text-transform:none;color:var(--gold-lt)}
 @media (max-width:900px){.area-split>.area-panel .area-scroll{flex:none;max-height:420px}}
 @media (max-width:600px){.area-map .city .cl{font-size:17px;stroke-width:5px}.area-map .city.home .cl,.area-map .city.cur .cl{font-size:18px}.area-map .city .cl-sub{font-size:12px}.area-map .cty{font-size:13px}.area-map .cty.off,.area-map .wtr,.area-map .lmk text,.area-map .ring-l,.area-map .state{display:none}.area-map .city .dot{r:7}.map-key{position:static;grid-template-columns:1fr 1fr;border:0;border-top:1px solid #D3DEE3;box-shadow:none;background:#fff}.map-src{position:static;padding:4px 12px 8px;background:#fff;text-align:right}}
+
+/* ===== thank-you page v12 ===== */
+.ty-hero{text-align:center;padding:var(--s8) 0 calc(var(--s8) + 4rem)}
+.ty-hero-in{display:flex;flex-direction:column;align-items:center}
+.ty-hero h1{font-size:clamp(2rem,1.3rem + 2.6vw,3.2rem);max-width:18ch;margin:0 auto var(--s4)}
+.ty-hero .lead{max-width:56ch;margin:0 auto}
+.ty-badge{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:var(--brand-blue);color:#fff;margin-bottom:var(--s4);box-shadow:0 0 0 10px rgba(91,192,232,.18),0 0 0 20px rgba(91,192,232,.08);animation:tyPop .5s cubic-bezier(.2,.9,.3,1.3) both}
+.ty-badge .ic{width:38px;height:38px;color:#fff}
+@keyframes tyPop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.ty-badge{animation:none}}
+.ty-proof{justify-content:center;margin-top:var(--s5)}
+.ty-stars{color:#F5B301;letter-spacing:.06em}
+.ty-main{padding-top:0;margin-top:-4rem;position:relative;z-index:2}
+.ty-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:var(--s5);align-items:stretch}
+.ty-steps{box-shadow:0 0 0 1px #E3E9EC,0 24px 50px -30px rgba(7,36,51,.45);padding:clamp(1.5rem,3vw,2.5rem)}
+.ty-steps h2,.ty-call h2{font-size:clamp(1.35rem,1rem + 1.1vw,1.8rem);margin:0 0 var(--s5)}
+.ty-call h2{color:#fff;margin-bottom:var(--s3)}
+.ty-ns{gap:var(--s5)}
+.ty-ns li:not(:last-child)::after{bottom:calc(-1 * var(--s5) + 4px)}
+.ty-ns li.done::before{content:"\2713";background:var(--brand-blue)}
+.ty-ns span{font-size:.92rem;line-height:1.55}
+.ty-call{padding:clamp(1.5rem,3vw,2.5rem);display:flex;flex-direction:column;box-shadow:0 24px 50px -30px rgba(7,36,51,.6)}
+.ty-call-p{color:var(--on-dark);margin:0 0 var(--s4)}
+.ty-call .ci-hours{display:flex;align-items:center;gap:.5rem;color:var(--on-dark);font-size:.9rem;margin:var(--s3) 0 0}
+.ty-photo-tip{margin-top:auto;padding-top:var(--s5);display:flex;gap:.75rem;align-items:flex-start;border-top:1px solid rgba(255,255,255,.14);margin-top:var(--s5)}
+.ty-photo-tip .ic{flex:none;width:22px;height:22px;color:var(--gold-lt);margin-top:.15rem}
+.ty-photo-tip p{margin:0;font-size:.9rem;color:var(--on-dark);line-height:1.55}
+.ty-photo-tip b{color:#fff}
+.ty-links{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s5);margin-top:var(--s6)}
+.ty-link{display:flex;flex-direction:column;background:#fff;border-radius:16px;overflow:hidden;text-decoration:none;color:var(--text);box-shadow:0 0 0 1px #E3E9EC,0 14px 30px -24px rgba(7,36,51,.5);transition:transform .2s,box-shadow .2s}
+.ty-link:hover{transform:translateY(-3px);box-shadow:0 0 0 1px #D2DCE1,0 22px 40px -24px rgba(7,36,51,.55)}
+.ty-link-img{display:block;aspect-ratio:16/10;overflow:hidden}
+.ty-link-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.ty-link:hover .ty-link-img img{transform:scale(1.04)}
+.ty-link-body{display:flex;flex-direction:column;gap:.35rem;padding:var(--s5)}
+.ty-link-k{font-family:var(--font-display);font-weight:800;text-transform:uppercase;letter-spacing:.14em;font-size:.74rem;color:var(--brand-blue)}
+.ty-link-body b{font-family:var(--font-display);font-size:1.25rem;color:var(--abyss);line-height:1.2}
+.ty-link-body>span:not(.ty-link-k):not(.ty-link-go){color:var(--muted);font-size:.92rem}
+.ty-link-go{display:inline-flex;align-items:center;gap:.4rem;margin-top:var(--s3);font-weight:700;color:var(--gold-dk);font-size:.9rem}
+.ty-link-go .ic{width:16px;height:16px}
+.ty-quote{max-width:720px;margin:var(--s7) auto 0}
+@media (max-width:900px){.ty-grid,.ty-links{grid-template-columns:1fr}.ty-main{margin-top:-3rem}.ty-hero{padding-bottom:calc(var(--s7) + 3rem)}}
