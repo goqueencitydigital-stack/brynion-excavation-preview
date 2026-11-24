@@ -336,23 +336,24 @@
       e.preventDefault();
       /* Honeypot: bots fill the hidden field; quietly stop. */
       var hp = d.getElementById('f-website'); if (hp && hp.value) return;
-      /* Delivery (same setup as our other client sites): FormSubmit AJAX to the owner's inbox, agency copied.
-         Success is shown ONLY when FormSubmit answers success:"true". Timeout or error shows a prefilled email + phone. */
+      /* Delivery: our Google Apps Script lead relay emails a branded notification to the owner (agency copied)
+         and logs the lead to a Google Sheet. Success is shown ONLY when the relay answers ok:true.
+         Timeout or error shows a prefilled email + phone fallback. */
       var to = form.getAttribute('data-to'), cc = form.getAttribute('data-cc') || '';
       var f = function (id) { var el = d.getElementById(id); return el ? (el.value || '').trim() : ''; };
-      var data = { name: f('f-name'), phone: f('f-phone'), project_location: f('f-loc'), service: f('f-svc'), description: f('f-desc'), email: f('f-email'), timeline: f('f-time') };
-      var labels = { name: 'Name', phone: 'Phone', project_location: 'Project location', service: 'Service needed', description: 'Project description', email: 'Email', timeline: 'Timeline' };
+      var data = { name: f('f-name'), phone: f('f-phone'), location: f('f-loc'), service: f('f-svc'), description: f('f-desc'), email: f('f-email'), timeline: f('f-time') };
+      var labels = { name: 'Name', phone: 'Phone', location: 'Project location', service: 'Service needed', description: 'Project description', email: 'Email', timeline: 'Timeline' };
       var lines = Object.keys(data).filter(function (k) { return data[k]; }).map(function (k) { return labels[k] + ': ' + data[k]; });
-      var subj = 'New estimate request: ' + data.service + ' in ' + data.project_location;
-      var payload = {}; Object.keys(data).forEach(function (k) { if (data[k]) payload[labels[k]] = data[k]; });
-      payload['Page'] = location.pathname; payload._subject = subj; payload._template = 'table'; payload._captcha = 'false';
-      if (cc) payload._cc = cc; if (data.email) payload._replyto = data.email;
+      var subj = 'New estimate request: ' + data.service + ' in ' + data.location;
+      var fsEl = form.querySelector('[name="form_start"]'), st0 = fsEl && Number(fsEl.value);
+      var payload = { form: 'estimate', page: location.href.split('#')[0], title: d.title, website: hp ? hp.value : '', t: st0 ? Date.now() - st0 : 0 };
+      Object.keys(data).forEach(function (k) { payload[k] = data[k]; });
       var btn = form.querySelector('[type="submit"]'), lbl = btn ? btn.textContent : '', fin = false, fb = form.querySelector('.f-fallback');
       if (fb) fb.hidden = true;
       if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = 'Sending…'; }
       status.hidden = false; status.classList.add('is-sending'); status.textContent = 'Sending your request…';
       var ac = window.AbortController ? new AbortController() : null;
-      var tm = setTimeout(function () { if (ac) ac.abort(); finish(false); }, 10000);
+      var tm = setTimeout(function () { if (ac) ac.abort(); finish(false); }, 15000);
       function finish(ok) {
         if (fin) return; fin = true; clearTimeout(tm);
         if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = lbl; }
@@ -370,8 +371,8 @@
         }
         track('form_error', { form_id: 'estimate', form_delivery: 'fallback' });
       }
-      fetch(form.getAttribute('action'), { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(payload), signal: ac ? ac.signal : undefined })
-        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return r.ok && String(j.success) === 'true'; }); })
+      fetch(form.getAttribute('action'), { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), signal: ac ? ac.signal : undefined })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return r.ok && j.ok === true; }); })
         .then(finish).catch(function () { finish(false); });
     });
     window.addEventListener('pageshow', function (ev) {
