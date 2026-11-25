@@ -1489,7 +1489,7 @@ h2{line-height:1.08}
 .post-meta a{color:#fff;text-decoration:underline;text-decoration-color:var(--gold-lt);text-underline-offset:3px}
 
 /* v20 home: dig a test hole game */
-.dig-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:var(--s7);align-items:center}
+.dig-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:var(--s7);align-items:start}
 .dig-text h2{margin-bottom:var(--s4)}
 .dig-lead{color:var(--muted);max-width:46ch;margin-bottom:var(--s5)}
 .dig-stats{list-style:none;margin:0 0 var(--s5);padding:0;display:flex;gap:var(--s5)}
@@ -1503,24 +1503,33 @@ h2{line-height:1.08}
 .dig-ctrl{display:flex;align-items:center;gap:var(--s4);flex-wrap:wrap}
 .dig-reset{background:none;border:0;padding:.5rem 0;font:inherit;font-weight:600;color:var(--navy);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .dig-done[hidden],.dig-ctrl [hidden]{display:none}
-.dig-site{position:relative;width:min(100%,calc((100vh - 200px)*1.25));max-width:600px;justify-self:center;aspect-ratio:5/4;border-radius:14px;overflow:hidden;box-shadow:0 24px 50px -24px rgba(7,36,51,.45);background:#3a2a1f}
+.dig-site{position:relative;margin-top:var(--s5);width:min(100%,calc((100vh - 200px)*1.25));max-width:600px;justify-self:center;aspect-ratio:5/4;border-radius:14px;overflow:hidden;box-shadow:0 24px 50px -24px rgba(7,36,51,.45);background:#3a2a1f}
 .dig-pit{position:absolute;inset:0;background:linear-gradient(180deg,#cfe3ec 0,#cfe3ec 12.5%,#2a1d14 12.5%,#2a1d14 27.1%,#3b2e25 27.1%,#3b2e25 52.1%,#3f3a33 52.1%,#3f3a33 77.1%,#2c3033 77.1%)}
 .dig-pit::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,transparent 30%,rgba(0,0,0,.35));pointer-events:none}
 .dig-find{position:absolute;display:block}
 .dig-find svg{width:100%;height:100%;display:block}
-.f-shoe{left:22%;top:33%;width:6.5%;height:8.5%;transform:rotate(-18deg)}
-.f-pipe{left:56%;top:40%;width:32%;height:5%}
-.f-rock{left:30%;top:63%;width:14%;height:12.5%}
+.f-shoe svg{transform:rotate(-18deg)}
+.f-bottle svg{transform:rotate(24deg)}
 .dig-find.found{animation:digPop .6s ease}
 @keyframes digPop{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
-.f-shoe.found{animation:none}
 .dig-canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:none;outline:none}
 .dig-canvas:focus-visible{box-shadow:inset 0 0 0 4px var(--gold)}
 .dig-bucket{position:absolute;left:0;top:0;width:12%;aspect-ratio:1;pointer-events:none;opacity:0;transform:translate(-50%,-70%);transition:opacity .2s}
 .dig-bucket.show{opacity:1}
 .dig-bucket svg{width:100%;height:100%;transform-origin:70% 20%;transition:transform .15s}
 .dig-bucket.scoop svg{transform:rotate(-24deg)}
+.dig-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.dig-detector{position:absolute;left:.75rem;top:.55rem;display:flex;align-items:center;gap:.45rem;padding:.28rem .7rem;border-radius:999px;background:rgba(255,255,255,.88);font-size:.78rem;font-weight:600;color:#24485a;pointer-events:none}
+.dd-dot{width:.65rem;height:.65rem;border-radius:50%;background:#5c8fb0;transition:background .2s,box-shadow .2s}
+.dig-detector.is-warm .dd-dot{background:#E8A23A;box-shadow:0 0 0 3px rgba(232,162,58,.3)}
+.dig-detector.is-hot .dd-dot{background:#d9480f;box-shadow:0 0 0 4px rgba(217,72,15,.35);animation:digPing .7s ease-in-out infinite}
+.dig-detector.is-clear .dd-dot{background:#3f8f3a}
+@keyframes digPing{50%{box-shadow:0 0 0 7px rgba(217,72,15,.12)}}
+.dig-toast{position:absolute;left:50%;bottom:1rem;transform:translate(-50%,12px);padding:.55rem 1rem;border-radius:999px;background:var(--abyss);color:#fff;font-weight:600;font-size:.9rem;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;box-shadow:0 10px 24px -10px rgba(0,0,0,.6)}
+.dig-toast.show{opacity:1;transform:translate(-50%,0)}
+.dig-site.shake{animation:digShake .22s linear}
+@keyframes digShake{25%{transform:translate(-2px,1px)}50%{transform:translate(2px,-1px)}75%{transform:translate(-1px,1px)}}
 .dig-note{position:absolute;right:.75rem;top:.6rem;margin:0;font-size:.75rem;color:#24485a;pointer-events:none}
 @media (max-width:960px){.dig-grid{grid-template-columns:1fr;gap:0}.dig-text{display:contents}.dig-site{width:100%;order:1;margin:var(--s3) 0 var(--s6)}.dig-stats,.dig-layers,.dig-msg,.dig-ctrl{order:2}.dig-msg{max-width:none}}
-@media (max-width:520px){.dig-stats{gap:var(--s4)}.dig-stats b{font-size:1.6rem}.dig-stats li{min-width:0}}
-@media (prefers-reduced-motion:reduce){.dig-bucket svg{transition:none}.dig-find.found{animation:none}}
+@media (max-width:520px){.dig-stats{gap:var(--s4)}.dig-stats b{font-size:1.45rem}.dig-stats li{min-width:0}.dig-note{font-size:.66rem}.dig-detector{font-size:.7rem}}
+@media (prefers-reduced-motion:reduce){.dig-bucket svg{transition:none}.dig-find.found,.dig-detector.is-hot .dd-dot,.dig-site.shake{animation:none}}

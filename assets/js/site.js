@@ -401,37 +401,63 @@
   /* Home: dig a test hole game */
   (function () {
     var root = d.querySelector('[data-dig]'); if (!root) return;
-    var cv = root.querySelector('.dig-canvas'), ctx = cv.getContext('2d'), site = root.querySelector('.dig-site');
-    var bucket = root.querySelector('.dig-bucket'), msg = root.querySelector('[data-dig-msg]');
-    var elDepth = root.querySelector('[data-dig-depth]'), elBuckets = root.querySelector('[data-dig-buckets]'), elFound = root.querySelector('[data-dig-found]');
+    var cv = root.querySelector('.dig-canvas'), ctx = cv.getContext('2d'), fx = root.querySelector('.dig-fx'), fctx = fx.getContext('2d');
+    var site = root.querySelector('.dig-site'), pit = root.querySelector('.dig-pit'), bucket = root.querySelector('.dig-bucket'), msg = root.querySelector('[data-dig-msg]');
+    var elDepth = root.querySelector('[data-dig-depth]'), elBuckets = root.querySelector('[data-dig-buckets]'), elFound = root.querySelector('[data-dig-found]'), elBest = root.querySelector('[data-dig-best]');
+    var det = root.querySelector('[data-dig-detector]'), heatTx = root.querySelector('[data-dig-heat]'), toast = root.querySelector('[data-dig-toast]');
     var done = root.querySelector('[data-dig-done]'), digBtn = root.querySelector('[data-dig-btn]'), chips = root.querySelectorAll('.dig-layers li');
-    var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-    var W = 600, H = 480, SURF = 60, FT = (H - SURF) / 8, CELL = 10, COLS = W / CELL, ROWS = H / CELL;
+    var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches, coarse = window.matchMedia('(pointer:coarse)').matches;
+    var W = 600, H = 480, SURF = 60, FT = (H - SURF) / 8, CELL = 10, COLS = W / CELL, ROWS = H / CELL, PILE_X = 78;
     var LAYERS = [
       { top: SURF, bot: 130, c: '#5a3d26', s: '#4a3120', t: 'Topsoil. On a real job we strip this and stockpile it, so the good dirt can go back on your yard when we are done.' },
       { top: 130, bot: 250, c: '#8a6a4c', s: '#7a5c40', t: 'Clay and silt. It holds water, which is why drainage and compaction matter so much through a wet Northwest winter.' },
       { top: 250, bot: 370, c: '#9b8f7c', s: '#867a68', t: 'Gravel and sand. This drains well. For driveways and pads we bring in crushed rock to build a firm base like this.' },
       { top: 370, bot: H, c: '#6c7276', s: '#5a6064', t: 'Rock. Digging is slower down here. This is where heavy equipment earns its keep.' }
     ];
-    var FINDS = [
-      { x: 132, y: 158, w: 39, h: 41, t: 'You found an old horseshoe. Lucky dig. A lot of land around here was farm ground first.' },
-      { x: 336, y: 192, w: 192, h: 24, t: 'Whoa, a buried utility line. In Washington you call 811 at least two business days before digging so lines get marked first.' },
-      { x: 180, y: 302, w: 84, h: 60, t: 'A big boulder. We would set this aside for a boulder retaining wall instead of hauling it off.' }
+    var SVG = {
+      truck: '<svg viewBox="0 0 64 40"><path d="M4 8h30l6 14H4z" fill="#c98a2b" stroke="#6b4310" stroke-width="2" stroke-linejoin="round"/><path d="M40 14h12l8 10v6H40z" fill="#b5762a" stroke="#6b4310" stroke-width="2" stroke-linejoin="round"/><path d="M45 17h6l4 6h-10z" fill="#8fb3c0"/><rect x="2" y="22" width="58" height="8" rx="2" fill="#7d5a2c"/><circle cx="14" cy="32" r="6" fill="#3a3a3a" stroke="#1f1f1f" stroke-width="2"/><circle cx="48" cy="32" r="6" fill="#3a3a3a" stroke="#1f1f1f" stroke-width="2"/><circle cx="14" cy="32" r="2" fill="#999"/><circle cx="48" cy="32" r="2" fill="#999"/><path d="M10 12l6 6M20 10l5 5" stroke="#8a4f12" stroke-width="2" opacity=".6"/></svg>',
+      shoe: '<svg viewBox="0 0 40 40"><path d="M8 34V18a12 12 0 0 1 24 0v16h-7V18a5 5 0 0 0-10 0v16z" fill="#9aa3a8" stroke="#5b6468" stroke-width="2"/><circle cx="11.5" cy="22" r="1.4" fill="#5b6468"/><circle cx="28.5" cy="22" r="1.4" fill="#5b6468"/><circle cx="11.5" cy="29" r="1.4" fill="#5b6468"/><circle cx="28.5" cy="29" r="1.4" fill="#5b6468"/></svg>',
+      pipe: '<svg viewBox="0 0 200 24" preserveAspectRatio="none"><rect x="0" y="4" width="200" height="16" rx="8" fill="#E8A23A" stroke="#9a6410" stroke-width="2"/><path d="M30 12h24M100 12h24M160 12h24" stroke="#9a6410" stroke-width="2" stroke-dasharray="4 4"/></svg>',
+      bottle: '<svg viewBox="0 0 26 52"><path d="M9 2h8v12c0 2 6 6 6 12v20c0 3-2 4-4 4H7c-2 0-4-1-4-4V26c0-6 6-10 6-12z" fill="#4f9a7a" fill-opacity=".85" stroke="#2c5e48" stroke-width="2"/><rect x="8" y="0" width="10" height="5" rx="1" fill="#7a5a3a"/><path d="M8 26v16" stroke="#cfeee0" stroke-width="2.5" stroke-linecap="round" opacity=".7"/></svg>',
+      rock: '<svg viewBox="0 0 80 60"><path d="M6 44c-4-14 6-30 22-34 14-4 32 0 42 12 8 10 6 24-4 30-12 6-34 8-48 4-6-2-10-6-12-12z" fill="#8a9196" stroke="#4d555a" stroke-width="2.5"/><path d="M22 20c8-4 18-4 26 0M18 34c10 4 26 4 38-2" stroke="#a9b0b4" stroke-width="3" fill="none" stroke-linecap="round"/></svg>'
+    };
+    var DEFS = [
+      { k: 'truck', name: 'Toy dump truck', w: 64, h: 40, y0: 72, y1: 86, need: .4, t: 'A rusty toy dump truck. Looks like somebody started this job before us.' },
+      { k: 'shoe', name: 'Old horseshoe', w: 39, h: 41, y0: 140, y1: 200, need: .4, t: 'An old horseshoe. Lucky dig. A lot of land around here was farm ground first.' },
+      { k: 'pipe', name: 'Utility line', w: 190, h: 24, y0: 150, y1: 220, need: .2, t: 'Whoa, a buried utility line. In Washington you call 811 at least two business days before digging so lines get marked first.' },
+      { k: 'bottle', name: 'Old glass bottle', w: 26, h: 52, y0: 262, y1: 305, need: .4, t: 'An old glass bottle. Buried junk turns up more often than you would think. It leaves with the spoils.' },
+      { k: 'rock', name: 'Big boulder', w: 84, h: 60, y0: 300, y1: 400, need: .4, t: 'A big boulder. We would set this aside for a boulder retaining wall instead of hauling it off.' }
     ];
-    var grid, cleared, buckets, maxDepth, found, reached, started, finished, kx, ky, spoil;
+    var N = DEFS.length, grid, cleared, buckets, maxDepth, found, nFound, reached, started, finished, cleared5, kx, ky, spoil, finds, els, best = 0;
+    try { best = +localStorage.getItem('bx_dig_best') || 0; } catch (x) {}
     function rnd(seed) { return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+    function layout() {
+      finds = []; var tries = 0;
+      DEFS.forEach(function (D) {
+        var f, ok;
+        do {
+          f = { x: 20 + Math.random() * (W - 40 - D.w), y: D.y0 + Math.random() * (D.y1 - D.y0), w: D.w, h: D.h };
+          ok = finds.every(function (o) { return f.x + f.w + 24 < o.x || o.x + o.w + 24 < f.x || f.y + f.h + 16 < o.y || o.y + o.h + 16 < f.y; });
+        } while (!ok && ++tries < 400);
+        finds.push(f);
+      });
+      pit.innerHTML = DEFS.map(function (D, i) { var f = finds[i]; return '<span class="dig-find f-' + D.k + '" style="left:' + (f.x / W * 100) + '%;top:' + (f.y / H * 100) + '%;width:' + (f.w / W * 100) + '%;height:' + (f.h / H * 100) + '%">' + SVG[D.k] + '</span>'; }).join('');
+      els = pit.querySelectorAll('.dig-find');
+    }
     function drawSky() {
-      ctx.clearRect(0, 0, W, SURF + 2);
+      ctx.clearRect(0, 0, W, SURF);
       var g = ctx.createLinearGradient(0, 0, 0, SURF); g.addColorStop(0, '#bcd8e5'); g.addColorStop(1, '#e3eef3');
       ctx.fillStyle = g; ctx.fillRect(0, 0, W, SURF);
       var h = Math.min(46, Math.sqrt(spoil) * 3.2);
-      if (h > 0) { ctx.fillStyle = '#6b4a2f'; ctx.beginPath(); ctx.moveTo(18, SURF); ctx.quadraticCurveTo(80, SURF - h * 2, 142 + h, SURF); ctx.fill(); }
-      ctx.fillStyle = '#4f8a3a'; ctx.fillRect(0, SURF - 2, W, 4);
+      if (h > 0) { ctx.fillStyle = '#6b4a2f'; ctx.beginPath(); ctx.moveTo(PILE_X - 60 - h * .4, SURF); ctx.quadraticCurveTo(PILE_X, SURF - h * 2, PILE_X + 64 + h, SURF); ctx.fill(); }
+      ctx.fillStyle = '#4f8a3a'; ctx.fillRect(0, SURF - 2, W, 2);
+      var r = rnd(11);
+      for (var gx = 0; gx < W; gx += 5) { var bh = 4 + r() * 5; if (gx > PILE_X - 70 && gx < PILE_X + 70 && h > 8) continue; ctx.beginPath(); ctx.moveTo(gx, SURF); ctx.lineTo(gx + 2.5, SURF - bh); ctx.lineTo(gx + 5, SURF); ctx.fill(); }
     }
     function drawGround() {
       var r = rnd(7);
       LAYERS.forEach(function (L, i) {
-        ctx.fillStyle = L.c; ctx.beginPath(); ctx.moveTo(0, L.top + (i ? Math.sin(0) * 6 : 0));
+        ctx.fillStyle = L.c; ctx.beginPath(); ctx.moveTo(0, L.top);
         for (var x = 0; x <= W; x += 20) ctx.lineTo(x, L.top + (i ? Math.sin(x / 60 + i) * 6 : 0));
         ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.fill();
       });
@@ -443,22 +469,31 @@
         }
       });
       ctx.fillStyle = '#5f9a45'; ctx.fillRect(0, SURF, W, 9);
-      ctx.fillStyle = '#4f8a3a';
-      for (var gx = 0; gx < W; gx += 5) { ctx.beginPath(); ctx.moveTo(gx, SURF + 2); ctx.lineTo(gx + 2.5, SURF - 5 - r() * 5); ctx.lineTo(gx + 5, SURF + 2); ctx.fill(); }
     }
-    function reset() {
+    function reset(first) {
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
-      cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      grid = new Uint8Array(COLS * ROWS); cleared = 0; buckets = 0; maxDepth = 0; found = [0, 0, 0]; reached = -1; started = finished = false; kx = W / 2; ky = SURF; spoil = 0;
-      ctx.globalCompositeOperation = 'source-over'; drawGround(); drawSky();
-      root.querySelectorAll('.dig-find').forEach(function (f) { f.classList.remove('found'); });
+      cv.width = fx.width = W * dpr; cv.height = fx.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); fctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      grid = new Uint8Array(COLS * ROWS); cleared = 0; buckets = 0; maxDepth = 0; found = []; nFound = 0; reached = -1; started = finished = cleared5 = false; kx = W / 2; ky = SURF; spoil = 0; parts = [];
+      ctx.globalCompositeOperation = 'source-over'; drawGround(); drawSky(); layout();
       chips.forEach(function (c) { c.classList.remove('on'); });
-      done.hidden = true; digBtn.hidden = false; say(window.matchMedia('(pointer:coarse)').matches ? 'Drag your finger on the ground to start digging.' : 'Click and drag on the ground to start digging.'); stats();
+      done.hidden = true; digBtn.hidden = false; toast.classList.remove('show');
+      say(first ? (coarse ? 'Drag your finger on the ground to start digging.' : 'Click and drag on the ground to start digging.') : 'New dig site. Everything is buried somewhere new this time.');
+      heat(9999); stats();
+      if (!first) track('dig_game_restart');
     }
     function say(t) { msg.textContent = t; }
     function stats() {
       elDepth.textContent = (maxDepth / FT).toFixed(1); elBuckets.textContent = buckets;
-      elFound.textContent = (found[0] + found[1] + found[2]) + '/3';
+      elFound.textContent = nFound + '/' + N; elBest.textContent = best || '–';
+    }
+    function rank(b) { return b <= 45 ? 'Pro operator' : b <= 75 ? 'Seasoned operator' : 'Rookie operator'; }
+    /* Detector: warmer as the bucket nears something still buried */
+    function heat(dist) {
+      var lv = nFound === N ? 'clear' : dist < 70 ? 'hot' : dist < 140 ? 'warm' : 'cold';
+      det.className = 'dig-detector is-' + lv; heatTx.textContent = lv === 'clear' ? 'Detector: all clear' : 'Detector: ' + lv;
+    }
+    function nearest(x, y) {
+      var m = 9999; finds.forEach(function (f, i) { if (found[i]) return; var dx = Math.max(f.x - x, 0, x - f.x - f.w), dy = Math.max(f.y - y, 0, y - f.y - f.h); m = Math.min(m, Math.hypot(dx, dy)); }); return m;
     }
     function layerAt(y) { for (var i = 0; i < LAYERS.length; i++) if (y < LAYERS[i].bot) return i; return 3; }
     function canDig(x, y, R) {
@@ -468,12 +503,14 @@
       for (var r = r0; r <= r1; r++) for (var c = c0; c <= c1; c++) if (grid[r * COLS + c]) return true;
       return false;
     }
+    var lastShake = 0;
     function stamp(x, y) {
       y = Math.max(y, SURF + 6); if (y > H - 4 || x < 0 || x > W) return false;
       var L = layerAt(y), R = L === 3 ? 13 : 22;
       if (!canDig(x, y, R)) return false;
+      ctx.save(); ctx.beginPath(); ctx.rect(0, SURF + 1, W, H); ctx.clip();
       ctx.globalCompositeOperation = 'destination-out'; ctx.beginPath(); ctx.arc(x, Math.max(y, SURF + R * .3), R, 0, 6.3); ctx.fill();
-      ctx.globalCompositeOperation = 'source-over';
+      ctx.restore(); ctx.globalCompositeOperation = 'source-over';
       var fresh = 0, c0 = Math.max(0, ((x - R) / CELL) | 0), c1 = Math.min(COLS - 1, ((x + R) / CELL) | 0);
       var r0 = Math.max(0, ((y - R) / CELL) | 0), r1 = Math.min(ROWS - 1, ((y + R) / CELL) | 0);
       for (var r = r0; r <= r1; r++) for (var c = c0; c <= c1; c++) {
@@ -482,54 +519,80 @@
       }
       if (!fresh) return true;
       if (!started) { started = true; track('dig_game_start'); }
-      cleared += fresh; var nb = Math.floor(cleared / 14); if (nb > buckets) { buckets = nb; spoil = buckets; drawSky(); scoop(); }
+      if (L === 3 && !reduce && Date.now() - lastShake > 260) { lastShake = Date.now(); site.classList.remove('shake'); void site.offsetWidth; site.classList.add('shake'); }
+      cleared += fresh; var nb = Math.floor(cleared / 14);
+      if (nb > buckets) { buckets = nb; scoop(); fling(x, y, LAYERS[L].c); }
       var deep = layerAt(SURF + maxDepth - 1);
       if (deep > reached) { for (var k = reached + 1; k <= deep; k++) chips[k].classList.add('on'); reached = deep; say(LAYERS[deep].t); }
       checkFinds(); stats(); return true;
     }
+    var tToast;
     function checkFinds() {
-      FINDS.forEach(function (F, i) {
+      finds.forEach(function (F, i) {
         if (found[i]) return;
         var tot = 0, hit = 0;
         for (var r = (F.y / CELL) | 0; r <= ((F.y + F.h) / CELL | 0); r++) for (var c = (F.x / CELL) | 0; c <= ((F.x + F.w) / CELL | 0); c++) { tot++; if (grid[r * COLS + c]) hit++; }
-        if (hit / tot >= (i === 1 ? .22 : .4)) {
-          found[i] = 1; say(F.t);
-          var el = root.querySelector('[data-find="' + i + '"]'); el.classList.add('found');
-          track('dig_game_find', { item: ['horseshoe', 'utility_line', 'boulder'][i] });
+        if (hit / tot >= DEFS[i].need) {
+          found[i] = 1; nFound++; say(DEFS[i].t); els[i].classList.add('found');
+          toast.textContent = 'Found: ' + DEFS[i].name + ' (' + nFound + '/' + N + ')'; toast.classList.add('show');
+          clearTimeout(tToast); tToast = setTimeout(function () { toast.classList.remove('show'); }, 2200);
+          track('dig_game_find', { item: DEFS[i].k });
         }
       });
-      var all = found[0] + found[1] + found[2] === 3;
-      if (!finished && (all || maxDepth >= H - SURF - 30)) {
-        finished = true; done.hidden = false; digBtn.hidden = true;
-        if (!all) say('You hit bottom. There ' + (3 - found[0] - found[1] - found[2] === 1 ? 'is still 1 thing' : 'are still ' + (3 - found[0] - found[1] - found[2]) + ' things') + ' hiding in the dirt. Keep digging, or let our crew handle the real thing.');
-        else setTimeout(function () { say('All three found, ' + (maxDepth / FT).toFixed(1) + ' feet down in ' + buckets + ' buckets. Nice dig. Ready for the real thing? Our crew brings the big bucket.'); }, 1600);
-        track('dig_game_complete', { finds: found[0] + found[1] + found[2], buckets: buckets });
-      }
+      if (!finished && (nFound === N || maxDepth >= H - SURF - 30)) { finished = true; done.hidden = false; digBtn.hidden = true; }
+      if (!cleared5 && nFound === N) {
+        cleared5 = true; var nb = buckets, isBest = !best || nb < best;
+        if (isBest) { best = nb; try { localStorage.setItem('bx_dig_best', String(nb)); } catch (x) {} }
+        heat(0);
+        setTimeout(function () { say('All five found in ' + nb + ' buckets. Rank: ' + rank(nb) + '.' + (isBest ? ' That is your best round yet.' : ' Your best is ' + best + '.') + ' Ready for the real thing? Our crew brings the big bucket.'); }, 1800);
+        track('dig_game_complete', { finds: N, buckets: nb });
+      } else if (!cleared5 && finished && maxDepth >= H - SURF - 30 && nFound < N && !hitBottomSaid) { hitBottomSaid = true; say('You hit bottom. ' + (N - nFound) + ' more ' + (N - nFound === 1 ? 'thing is' : 'things are') + ' still buried. Check the detector and dig sideways.'); }
+    }
+    var hitBottomSaid = false;
+    /* Dirt that flies from the bucket onto the spoil pile */
+    var parts = [], raf = 0;
+    function fling(x, y, col) {
+      if (reduce) { spoil = buckets; drawSky(); return; }
+      var now = performance.now();
+      for (var i = 0; i < 6; i++) parts.push({ x0: x + (Math.random() - .5) * 16, y0: y, x1: PILE_X + (Math.random() - .5) * 60, y1: SURF - 4 - Math.random() * 8, t0: now + i * 25, dur: 520 + Math.random() * 220, s: 2.5 + Math.random() * 3, c: col, last: i === 5 });
+      if (!raf) raf = requestAnimationFrame(tick);
+    }
+    function tick(now) {
+      fctx.clearRect(0, 0, W, H);
+      parts = parts.filter(function (p) {
+        var t = (now - p.t0) / p.dur; if (t < 0) return true;
+        if (t >= 1) { if (p.last) { spoil = Math.max(spoil, Math.min(buckets, spoil + 1)); drawSky(); } return false; }
+        var e = 1 - Math.pow(1 - t, 2), x = p.x0 + (p.x1 - p.x0) * e, y = p.y0 + (p.y1 - p.y0) * e - Math.sin(Math.PI * t) * Math.min(70, p.y0 - 14);
+        fctx.fillStyle = p.c; fctx.beginPath(); fctx.arc(x, y, p.s, 0, 6.3); fctx.fill(); return true;
+      });
+      raf = parts.length ? requestAnimationFrame(tick) : 0;
+      if (!raf && spoil < buckets) { spoil = buckets; drawSky(); }
     }
     var tScoop; function scoop() { if (reduce) return; bucket.classList.add('scoop'); clearTimeout(tScoop); tScoop = setTimeout(function () { bucket.classList.remove('scoop'); }, 140); }
     function pt(e) { var b = cv.getBoundingClientRect(); return { x: (e.clientX - b.left) * W / b.width, y: (e.clientY - b.top) * H / b.height, px: e.clientX - b.left, py: e.clientY - b.top }; }
     function moveBucket(px, py) { bucket.style.left = px + 'px'; bucket.style.top = py + 'px'; }
     var down = false, last = null;
     function line(a, b) { var dx = b.x - a.x, dy = b.y - a.y, n = Math.max(1, Math.ceil(Math.hypot(dx, dy) / 6)); for (var i = 1; i <= n; i++) stamp(a.x + dx * i / n, a.y + dy * i / n); }
-    cv.addEventListener('pointerdown', function (e) { down = true; cv.setPointerCapture(e.pointerId); var p = pt(e); last = p; stamp(p.x, p.y); moveBucket(p.px, p.py); if (e.pointerType === 'mouse') bucket.classList.add('show'); e.preventDefault(); });
-    cv.addEventListener('pointermove', function (e) { var p = pt(e); if (e.pointerType === 'mouse') { bucket.classList.add('show'); moveBucket(p.px, p.py); } if (!down) return; line(last, p); last = p; });
+    cv.addEventListener('pointerdown', function (e) { down = true; try { cv.setPointerCapture(e.pointerId); } catch (x) {} var p = pt(e); last = p; stamp(p.x, p.y); heat(nearest(p.x, p.y)); moveBucket(p.px, p.py); if (e.pointerType === 'mouse') bucket.classList.add('show'); e.preventDefault(); });
+    cv.addEventListener('pointermove', function (e) { var p = pt(e); heat(nearest(p.x, p.y)); if (e.pointerType === 'mouse') { bucket.classList.add('show'); moveBucket(p.px, p.py); } if (!down) return; line(last, p); last = p; });
     function up() { down = false; last = null; }
     cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
     cv.addEventListener('pointerleave', function () { bucket.classList.remove('show'); });
     function deepestNear(x) { var best = SURF; for (var r = 0; r < ROWS; r++) for (var c = Math.max(0, ((x - 15) / CELL) | 0); c <= Math.min(COLS - 1, ((x + 15) / CELL) | 0); c++) if (grid[r * COLS + c]) best = Math.max(best, r * CELL + 5); return best; }
-    function digDown() { var y = deepestNear(kx) + 16; if (y > H - 6) { y = H - 6; } ky = y; stamp(kx, ky); var b = cv.getBoundingClientRect(); moveBucket(kx * b.width / W, ky * b.height / H); bucket.classList.add('show'); }
+    function aim() { var b = cv.getBoundingClientRect(); moveBucket(kx * b.width / W, ky * b.height / H); bucket.classList.add('show'); heat(nearest(kx, ky)); }
+    function digDown() { ky = Math.min(deepestNear(kx) + 16, H - 6); stamp(kx, ky); aim(); }
     digBtn.addEventListener('click', digDown);
-    root.querySelector('[data-dig-reset]').addEventListener('click', reset);
+    root.querySelector('[data-dig-reset]').addEventListener('click', function () { hitBottomSaid = false; reset(false); });
     cv.addEventListener('keydown', function (e) {
       var k = e.key, step = 16;
       if (k === 'ArrowLeft') kx = Math.max(10, kx - step); else if (k === 'ArrowRight') kx = Math.min(W - 10, kx + step);
       else if (k === 'ArrowDown') ky = Math.min(H - 6, ky + step); else if (k === 'ArrowUp') ky = Math.max(SURF, ky - step);
       else if (k === ' ' || k === 'Enter') { if (!stamp(kx, ky)) say('Dig from the surface or the edge of your hole. Use the arrow keys to aim.'); }
       else return;
-      e.preventDefault(); var b = cv.getBoundingClientRect(); moveBucket(kx * b.width / W, ky * b.height / H); bucket.classList.add('show');
+      e.preventDefault(); aim();
     });
     cv.addEventListener('blur', function () { bucket.classList.remove('show'); });
-    reset();
+    reset(true);
   })();
 
 })();
