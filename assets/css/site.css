@@ -1487,3 +1487,40 @@ h2{line-height:1.08}
 .prose h2[id]{scroll-margin-top:110px}
 @media (max-width:700px){.post-toc ol{columns:1}}
 .post-meta a{color:#fff;text-decoration:underline;text-decoration-color:var(--gold-lt);text-underline-offset:3px}
+
+/* v20 home: dig a test hole game */
+.dig-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:var(--s7);align-items:center}
+.dig-text h2{margin-bottom:var(--s4)}
+.dig-lead{color:var(--muted);max-width:46ch;margin-bottom:var(--s5)}
+.dig-stats{list-style:none;margin:0 0 var(--s5);padding:0;display:flex;gap:var(--s5)}
+.dig-stats li{display:flex;flex-direction:column;min-width:5.5rem}
+.dig-stats b{font-family:var(--font-display);font-size:2rem;line-height:1.1;color:var(--navy);font-variant-numeric:tabular-nums}
+.dig-stats span{font-size:.85rem;color:var(--muted)}
+.dig-layers{list-style:none;margin:0 0 var(--s4);padding:0;display:flex;flex-wrap:wrap;gap:.5rem}
+.dig-layers li{font-size:.85rem;padding:.35rem .8rem;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted);transition:background .3s,color .3s,border-color .3s}
+.dig-layers li.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.dig-msg{min-height:4.8em;margin-bottom:var(--s4);padding:var(--s3) var(--s4);background:#fff;border-left:4px solid var(--gold);border-radius:6px;color:var(--ink,#1d2a31);max-width:52ch}
+.dig-ctrl{display:flex;align-items:center;gap:var(--s4);flex-wrap:wrap}
+.dig-reset{background:none;border:0;padding:.5rem 0;font:inherit;font-weight:600;color:var(--navy);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.dig-done[hidden],.dig-ctrl [hidden]{display:none}
+.dig-site{position:relative;width:min(100%,calc((100vh - 200px)*1.25));max-width:600px;justify-self:center;aspect-ratio:5/4;border-radius:14px;overflow:hidden;box-shadow:0 24px 50px -24px rgba(7,36,51,.45);background:#3a2a1f}
+.dig-pit{position:absolute;inset:0;background:linear-gradient(180deg,#cfe3ec 0,#cfe3ec 12.5%,#2a1d14 12.5%,#2a1d14 27.1%,#3b2e25 27.1%,#3b2e25 52.1%,#3f3a33 52.1%,#3f3a33 77.1%,#2c3033 77.1%)}
+.dig-pit::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,transparent 30%,rgba(0,0,0,.35));pointer-events:none}
+.dig-find{position:absolute;display:block}
+.dig-find svg{width:100%;height:100%;display:block}
+.f-shoe{left:22%;top:33%;width:6.5%;height:8.5%;transform:rotate(-18deg)}
+.f-pipe{left:56%;top:40%;width:32%;height:5%}
+.f-rock{left:30%;top:63%;width:14%;height:12.5%}
+.dig-find.found{animation:digPop .6s ease}
+@keyframes digPop{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
+.f-shoe.found{animation:none}
+.dig-canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:none;outline:none}
+.dig-canvas:focus-visible{box-shadow:inset 0 0 0 4px var(--gold)}
+.dig-bucket{position:absolute;left:0;top:0;width:12%;aspect-ratio:1;pointer-events:none;opacity:0;transform:translate(-50%,-70%);transition:opacity .2s}
+.dig-bucket.show{opacity:1}
+.dig-bucket svg{width:100%;height:100%;transform-origin:70% 20%;transition:transform .15s}
+.dig-bucket.scoop svg{transform:rotate(-24deg)}
+.dig-note{position:absolute;right:.75rem;top:.6rem;margin:0;font-size:.75rem;color:#24485a;pointer-events:none}
+@media (max-width:960px){.dig-grid{grid-template-columns:1fr;gap:0}.dig-text{display:contents}.dig-site{width:100%;order:1;margin:var(--s3) 0 var(--s6)}.dig-stats,.dig-layers,.dig-msg,.dig-ctrl{order:2}.dig-msg{max-width:none}}
+@media (max-width:520px){.dig-stats{gap:var(--s4)}.dig-stats b{font-size:1.6rem}.dig-stats li{min-width:0}}
+@media (prefers-reduced-motion:reduce){.dig-bucket svg{transition:none}.dig-find.found{animation:none}}
