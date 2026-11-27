@@ -1533,3 +1533,15 @@ h2{line-height:1.08}
 @media (max-width:960px){.dig-grid{grid-template-columns:1fr;gap:0}.dig-text{display:contents}.dig-site{width:100%;order:1;margin:var(--s3) 0 var(--s6)}.dig-stats,.dig-layers,.dig-msg,.dig-ctrl{order:2}.dig-msg{max-width:none}}
 @media (max-width:520px){.dig-stats{gap:var(--s4)}.dig-stats b{font-size:1.45rem}.dig-stats li{min-width:0}.dig-note{font-size:.66rem}.dig-detector{font-size:.7rem}}
 @media (prefers-reduced-motion:reduce){.dig-bucket svg{transition:none}.dig-find.found,.dig-detector.is-hot .dd-dot,.dig-site.shake{animation:none}}
+/* v21 post quick answer */
+.post-quick{margin:var(--s5) 0;padding:clamp(1.25rem,3vw,1.75rem);background:#fff;border-left:8px solid var(--gold);box-shadow:0 0 0 1px var(--line),0 5px 0 var(--navy)}
+.post-quick .eyebrow{margin:0 0 .4rem}
+.post-quick p:last-child{margin:0;font-size:1.06rem;line-height:1.7}
+
+.page-more h2{margin-top:0}
+.page-more .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(17rem,1fr));gap:clamp(1.25rem,2.5vw,2rem) clamp(1.5rem,3vw,2.75rem);margin-top:var(--s5)}
+@media(min-width:900px){.page-more .cols.c6{grid-template-columns:repeat(3,1fr)}.page-more .cols.c4{grid-template-columns:repeat(2,1fr)}}
+.page-more .cols p{font-size:.98rem;line-height:1.62}
+.page-more .cols h3{margin:0 0 .5rem;color:var(--navy)}
+.page-more .cols p{margin:0}
+.page-more .pm-intro{max-width:46rem;margin:0}
